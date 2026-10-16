@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>GemmaLens • Real-Time Environmental Vision & Speech</title>
+  <meta name="description" content="Instant camera capture to Gemma 4 multimodal AI with strict environmental perception and voice narration. Accessible on laptop and mobile.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <div class="app-container">
+    <!-- Top Telemetry & Navigation Bar -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="logo-mark">
+          <div class="pulse-ring"></div>
+          <span class="logo-dot"></span>
+        </div>
+        <div class="brand-text">
+          <h1>GEMMA<span class="gradient-text">LENS</span></h1>
+          <span class="sub-badge">ASSISTIVE VISION HUD • GEMMA 4</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="btn-phone-connect" class="nav-btn primary-glow-btn" title="Open on Mobile / Phone">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+            <path d="M12 18h.01"/>
+          </svg>
+          <span class="btn-text">Open on Phone</span>
+          <span class="pulse-indicator"></span>
+        </button>
+
+        <button id="btn-settings" class="nav-btn icon-only-btn" title="Configuration & API Keys">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Split -->
+    <main class="main-layout">
+      
+      <!-- LEFT PANEL: Camera Feed & Viewfinder HUD -->
+      <section class="camera-panel glass-card">
+        
+        <!-- ESP32-CAM Real-time Ingestion Banner -->
+        <div class="esp-ingest-banner">
+          <div class="esp-status-line">
+            <div class="live-pulse-badge">
+              <span class="pulse-beacon"></span>
+              <span class="esp-badge-text">AUTO-INGESTION ACTIVE • WAITING FOR PHOTOS</span>
+            </div>
+            <span class="esp-port-badge">ENDPOINT: :5000/upload</span>
+          </div>
+          <div class="esp-code-row">
+            <span class="cpp-label">ESP32 Code:</span>
+            <code id="esp-code-snippet">const char* serverUrl = "http://192.168.1.18:5000/upload";</code>
+            <div class="esp-btn-group">
+              <button id="btn-copy-esp-code" class="action-btn small-btn" title="Copy C++ URL line to clipboard">Copy</button>
+              <button id="btn-test-esp-upload" class="action-btn small-btn secondary" title="Simulate an image push from the ESP32-CAM to /upload">Simulate Push</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Source Selector Tabs -->
+        <div class="tabs-header">
+          <button class="source-tab active" data-source="ipcam" id="tab-ipcam">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+              <path d="M2 12h20"/>
+            </svg>
+            <span>IP Webcam (Push & Stream)</span>
+          </button>
+          
+          <button class="source-tab" data-source="device" id="tab-device">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+              <circle cx="12" cy="13" r="3"/>
+            </svg>
+            <span>Device Camera</span>
+          </button>
+
+          <button class="source-tab" data-source="presets" id="tab-presets">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>
+            </svg>
+            <span>Demo Scenes</span>
+          </button>
+        </div>
+
+        <!-- IP Webcam Connection Bar -->
+        <div id="ipcam-config-bar" class="sub-config-bar">
+          <div class="input-with-button">
+            <div class="url-input-wrap">
+              <span class="url-protocol">CAM URL</span>
+              <input type="text" id="ipcam-url" placeholder="http://192.168.1.50:8080/shot.jpg or /video" value="http://192.168.1.18:8080/shot.jpg">
+            </div>
+            <button id="btn-connect-ipcam" class="action-btn small-btn">
+              <span>Connect</span>
+            </button>
+          </div>
+          <div class="ipcam-presets-row">
+            <span class="preset-label">Presets:</span>
+            <button class="preset-pill" data-format="android-shot">Android IP Webcam (/shot.jpg)</button>
+            <button class="preset-pill" data-format="android-video">Android Stream (/video)</button>
+            <button class="preset-pill" data-format="esp32">ESP32-CAM (/capture)</button>
+          </div>
+        </div>
+
+        <!-- Device Camera Options Bar (Hidden by default) -->
+        <div id="device-config-bar" class="sub-config-bar hidden">
+          <div class="device-actions">
+            <button id="btn-toggle-camera-facing" class="action-btn small-btn secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>
+                <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="m18 22-3-3 3-3"/>
+                <path d="m6 2 3 3-3 3"/>
+              </svg>
+              <span>Switch Front/Rear Camera</span>
+            </button>
+            <span class="camera-status-pill online" id="camera-resolution-label">Camera Active</span>
+          </div>
+        </div>
+
+        <!-- Demo Presets Bar (Hidden by default) -->
+        <div id="presets-config-bar" class="sub-config-bar hidden">
+          <div class="sample-scene-buttons">
+            <button class="scene-btn active" data-scene="livingroom">
+              <span class="scene-emoji">🛋️</span> Living Room
+            </button>
+            <button class="scene-btn" data-scene="hallway">
+              <span class="scene-emoji">🚪</span> Hallway Corridor
+            </button>
+            <button class="scene-btn" data-scene="kitchen">
+              <span class="scene-emoji">🍳</span> Kitchen Counter
+            </button>
+            <button class="scene-btn alert-scene" data-scene="obscured" title="Test 'Camera view obscured' constraint">
+              <span class="scene-emoji">⚠️</span> Obscured Lens
+            </button>
+          </div>
+        </div>
+
+        <!-- The Viewfinder Container -->
+        <div class="viewfinder-container" id="viewfinder">
+          <!-- Live Video (Device Camera) -->
+          <video id="device-video" autoplay playsinline muted class="feed-media hidden"></video>
+
+          <!-- Snapshot / IP Cam Image / Preset View -->
+          <img id="viewfinder-img" class="feed-media" src="/samples/livingroom.jpg" alt="Webcam Feed">
+
+          <!-- Invisible Snapshot Capture Canvas -->
+          <canvas id="capture-canvas" style="display: none;"></canvas>
+
+          <!-- Laser Scanline Animation -->
+          <div class="scanline" id="scanline"></div>
+
+          <!-- Shutter Flash Overlay -->
+          <div class="shutter-flash" id="shutter-flash"></div>
+
+          <!-- Futuristic HUD Reticles & Overlays -->
+          <div class="hud-overlay">
+            <div class="corner-bracket top-left"></div>
+            <div class="corner-bracket top-right"></div>
+            <div class="corner-bracket bottom-left"></div>
+            <div class="corner-bracket bottom-right"></div>
+
+            <div class="hud-reticle">
+              <div class="reticle-circle"></div>
+              <div class="reticle-crosshair"></div>
+            </div>
+
+            <!-- Top HUD Telemetry -->
+            <div class="hud-header">
+              <div class="hud-pill live-pill">
+                <span class="blink-dot"></span>
+                <span id="hud-stream-mode">LIVE FEED</span>
+              </div>
+              <div class="hud-pill info-pill">
+                <span id="hud-telemetry">1280×720 • 30 FPS</span>
+              </div>
+            </div>
+
+            <!-- Bottom HUD Status -->
+            <div class="hud-footer">
+              <div class="hud-target-pill">
+                <span class="label">MODEL:</span>
+                <span class="value" id="hud-model-name">GEMMA 4 VISION</span>
+              </div>
+              <div class="hud-target-pill">
+                <span class="label">RULE:</span>
+                <span class="value green">STRICT 1-SENTENCE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viewfinder Controls / Action Bar -->
+        <div class="viewfinder-toolbar">
+          <div class="auto-interval-wrap">
+            <label for="auto-interval-select" class="switch-label">Continuous Auto:</label>
+            <select id="auto-interval-select" class="hud-select">
+              <option value="0">Manual Only</option>
+              <option value="3000">Every 3 seconds</option>
+              <option value="5000">Every 5 seconds</option>
+              <option value="10000">Every 10 seconds</option>
+            </select>
+            <div class="interval-countdown hidden" id="interval-countdown">
+              <svg class="countdown-svg" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path id="countdown-circle" class="circle-progress" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              </svg>
+              <span id="countdown-number">3</span>
+            </div>
+          </div>
+
+          <!-- Big Capture Button -->
+          <button id="btn-capture" class="capture-btn" title="Take photo and analyze with Gemma">
+            <div class="btn-ripple"></div>
+            <div class="btn-inner">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+              </svg>
+              <span>CAPTURE & ANALYZE</span>
+            </div>
+          </button>
+
+          <!-- Voice Trigger Button (Speech-to-Text) -->
+          <button id="btn-voice-trigger" class="voice-trigger-btn" title="Say 'Capture' or 'Analyze' to trigger hands-free">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+            <span id="voice-trigger-text">Voice Trigger</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- RIGHT PANEL: Gemma AI Perception Output & Audio Speech Console -->
+      <section class="perception-panel">
+        
+        <!-- Primary Output Card -->
+        <div class="result-card glass-card">
+          <div class="card-header">
+            <div class="header-tag">
+              <span class="ai-sparkle">✦</span>
+              <h2>ENVIRONMENTAL PERCEPTION</h2>
+            </div>
+            <div class="meta-tag" id="latency-tag">
+              <span class="dot green"></span>
+              <span id="latency-text">Gemma 4 Ready</span>
+            </div>
+          </div>
+
+          <!-- Strict Prompt Banner -->
+          <div class="prompt-banner">
+            <div class="banner-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </div>
+            <p class="banner-text">
+              <strong>Prompt:</strong> "Describe useful, clearly visible environmental details in one short sentence. Do not invent distances, directions, or state that a path is safe. If the image is unclear, reply with 'Camera view obscured'."
+            </p>
+          </div>
+
+          <!-- Text Result Display with large, accessible typography -->
+          <div class="result-display-area" id="result-display-area">
+            <div class="quote-symbol">“</div>
+            <p id="perception-text" class="perception-text">
+              A wooden coffee table rests between a sofa, floor lamp, and an open doorway.
+            </p>
+            <div class="analyzing-skeleton hidden" id="analyzing-skeleton">
+              <div class="skeleton-line line-1"></div>
+              <div class="skeleton-line line-2"></div>
+            </div>
+          </div>
+
+          <!-- Speech & Audio Narration Console -->
+          <div class="audio-console">
+            
+            <div class="audio-main-row">
+              <!-- Re-read Button -->
+              <button id="btn-read-aloud" class="audio-play-btn" title="Read description out loud">
+                <svg id="play-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <span id="read-aloud-text">Read Description</span>
+              </button>
+
+              <!-- Animated Soundwave Visualizer -->
+              <div class="audio-wave-container" id="audio-wave-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+              </div>
+
+              <!-- Auto-Speak Checkbox -->
+              <label class="auto-speak-toggle" title="Automatically speak whenever a new photo is analyzed">
+                <input type="checkbox" id="auto-speak-checkbox" checked>
+                <span class="custom-toggle"></span>
+                <span class="toggle-label">Auto-Speak</span>
+              </label>
+            </div>
+
+            <!-- Voice Controls & Sliders Drawer -->
+            <div class="voice-controls-row">
+              <div class="voice-select-wrap">
+                <label for="voice-select">Voice:</label>
+                <select id="voice-select" class="hud-select-small">
+                  <option value="">System Default</option>
+                </select>
+              </div>
+
+              <div class="speed-slider-wrap">
+                <label for="speech-rate">Speed: <span id="rate-value">1.0x</span></label>
+                <input type="range" id="speech-rate" min="0.7" max="1.5" step="0.1" value="1.0">
+              </div>
+            </div>
+
+            <!-- Live Speech-to-Text Recognition Display -->
+            <div id="stt-live-box" class="stt-feedback-box hidden">
+              <span class="mic-pulsing-dot"></span>
+              <span class="stt-label">Heard:</span>
+              <span id="stt-transcript" class="stt-text">Listening for "Capture" or "Analyze"...</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Capture History Section -->
+        <div class="history-card glass-card">
+          <div class="history-header">
+            <h3>LOGGED SCENE PERCEPTIONS</h3>
+            <button id="btn-clear-history" class="clear-btn">Clear</button>
+          </div>
+          <div class="history-list" id="history-list">
+            <!-- Dynamically populated entries -->
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: Connect Phone / Mobile QR Code -->
+  <div id="modal-phone" class="modal-backdrop hidden">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+            <path d="M12 18h.01"/>
+          </svg>
+          <h3>Open on Phone or Tablet</h3>
+        </div>
+        <button id="btn-close-phone-modal" class="modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          Scan this QR code with your phone camera to open GemmaLens directly on mobile. Both devices must be on the same Wi-Fi network.
+        </p>
+
+        <div class="qr-code-wrapper">
+          <img id="network-qr-image" src="" alt="Network QR Code">
+        </div>
+
+        <div class="network-url-box">
+          <span class="url-label">Direct Network Address:</span>
+          <div class="copy-url-row">
+            <input type="text" id="network-url-input" readonly value="http://192.168.1.18:3000">
+            <button id="btn-copy-url" class="copy-btn">Copy</button>
+          </div>
+        </div>
+
+        <div class="mobile-tips">
+          <div class="tip-item">
+            <span class="tip-badge">Phone as Camera</span>
+            <p>Use your phone's rear camera directly in GemmaLens, or run an IP Webcam app like <em>IP Webcam</em> on Android.</p>
+          </div>
+          <div class="tip-item">
+            <span class="tip-badge">Voice Reader</span>
+            <p>Your phone will automatically speak out loud the short environmental description as you move around!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Settings & Model Configuration -->
+  <div id="modal-settings" class="modal-backdrop hidden">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <h3>AI Engine & Speech Configuration</h3>
+        </div>
+        <button id="btn-close-settings-modal" class="modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body settings-form">
+        <div class="form-group">
+          <label for="ai-provider-select">Inference Engine:</label>
+          <select id="ai-provider-select" class="form-select">
+            <option value="auto">Auto (Gemini AI Key if provided, else Instant Demo)</option>
+            <option value="gemini">Google Gemini / Gemma Multimodal (Google AI Key)</option>
+            <option value="ollama">Local Ollama / LM Studio (Gemma Vision)</option>
+            <option value="demo">Instant Demo Mode (Smart Offline Heuristics)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="group-gemini-key">
+          <label for="gemini-api-key">Google AI Studio API Key (for Gemini/Gemma Vision):</label>
+          <input type="password" id="gemini-api-key" placeholder="AIzaSy..." class="form-input">
+          <span class="field-hint">Optional. Leave empty to use the built-in smart simulation mode.</span>
+        </div>
+
+        <div class="form-group" id="group-ollama-url">
+          <label for="ollama-url-input">Ollama Server Endpoint:</label>
+          <input type="text" id="ollama-url-input" value="http://localhost:11434" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="model-name-input">Model Name:</label>
+          <input type="text" id="model-name-input" value="gemini-2.5-flash" class="form-input">
+          <span class="field-hint">e.g. <code>gemini-2.5-flash</code>, <code>gemini-1.5-flash</code>, or local <code>gemma-3-4b</code>.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Enforced System Prompt:</label>
+          <textarea id="prompt-textarea" class="form-textarea" rows="3" readonly>Describe useful, clearly visible environmental details in one short sentence. Do not invent distances, directions, or state that a path is safe. If the image is unclear, reply with 'Camera view obscured'.</textarea>
+        </div>
+
+        <div class="modal-footer-actions">
+          <button id="btn-save-settings" class="primary-glow-btn full-width">Save Configuration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -117,21 +117,25 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 ### 3. Test the Gemma Endpoint Locally (Without Hardware)
 Send a test image directly to your running FastAPI server:
+### 4. Run the Real-Time GemmaLens Web HUD & ESP32 Node
+
+You can run the full end-to-end web viewer and speech synthesis HUD:
+
 ```bash
-curl -X POST "http://localhost:8000/describe" \
-  -H "accept: application/json" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@../docs/test_scene.jpg"
+# Install dependencies
+npm install
+
+# Copy environment variables and set your Gemini API key
+cp .env.example .env
+
+# Start the server (Port 5000)
+node server.js
 ```
-*Expected JSON Output:*
-```json
-{
-  "status": "success", 
-  "model": "gemma-4-9b-it",
-  "description": "There is a park bench directly ahead on a paved path.", 
-  "audio_url": "/audio/output_123.mp3"
-}
-```
+
+* **Laptop / Desktop Viewer:** `http://localhost:5000`
+* **Phone / Tablet Viewer:** `http://<YOUR_LOCAL_IP>:5000` (scan the on-screen QR code)
+* **ESP32-S3 Firmware:** Open `cam_node/sketch_oct16a/sketch_oct16a.ino` in Arduino IDE and upload to your ESP32-S3-CAM.
+* **Operation:** Press the button on **GPIO 3** of the ESP32. The image will upload to `http://<YOUR_LOCAL_IP>:5000/upload`, Gemma 4 will evaluate the scene, and your phone/laptop will automatically speak the 1-sentence environmental perception aloud!
 
 ---
 
